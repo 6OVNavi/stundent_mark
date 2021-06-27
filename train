@@ -1,0 +1,86 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+data=pd.read_csv('test_scores.csv')
+
+X=data.drop(labels='posttest',axis=1)
+Y=data['posttest']
+#print(X,Y)
+
+#print(data.isna().sum()) NO NULLS
+
+
+
+#plt.figure(figsize=(12, 8))
+#sns.heatmap(data.corr(), annot=True)
+#plt.show()
+
+X=X.drop(['classroom','student_id'],axis=1)
+
+from sklearn import preprocessing
+label = preprocessing.LabelEncoder()
+
+X['gender']= label.fit_transform(X['gender'])
+X['school']= label.fit_transform(X['school'])
+X['school_setting']= label.fit_transform(X['school_setting'])
+X['school_type']= label.fit_transform(X['school_type'])
+X['teaching_method']= label.fit_transform(X['teaching_method'])
+#X['n_student']= label.fit_transform(X['n_student'])
+X['lunch']= label.fit_transform(X['lunch'])
+#X['pretest']= label.fit_transform(X['pretest'])
+print(X)
+
+
+fig = plt.figure(figsize=(8, 6))
+fig.subplots_adjust(hspace=0.4, wspace=0.4)
+ax = fig.add_subplot(3, 3, 1)
+sns.distplot(X['gender'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+ax = fig.add_subplot(3, 3, 2)
+sns.distplot(X['school'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+ax = fig.add_subplot(3, 3, 3)
+sns.distplot(X['school_setting'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+ax = fig.add_subplot(3, 3, 4)
+sns.distplot(X['school_type'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+ax = fig.add_subplot(3, 3, 5)
+sns.distplot(X['teaching_method'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+ax = fig.add_subplot(3, 3, 6)
+sns.distplot(X['n_student'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+ax = fig.add_subplot(3, 3, 7)
+sns.distplot(X['lunch'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+ax = fig.add_subplot(3, 3, 8)
+sns.distplot(X['pretest'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+ax = fig.add_subplot(3, 3, 9)
+sns.distplot(data['posttest'], hist_kws=dict(edgecolor='k', linewidth=1), bins=10)
+plt.show()
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+X_train, X_test, y_train, y_test=train_test_split(X,Y,test_size=0.3,shuffle=True,random_state=0)
+
+from catboost import CatBoostClassifier,CatBoostRegressor
+from sklearn.ensemble import RandomForestRegressor
+model=CatBoostRegressor(iterations=100,random_state=42,verbose=1,task_type="GPU", max_depth=6)
+
+model.fit(X_train,y_train)
+
+from sklearn.metrics import *
+
+prediction=model.predict(X_test)
+
+print(f'Accuracy_score:{r2_score(y_test,prediction)}') #Accuracy_score:0.9463126954953704
+
+
+
+
+
+
+
+
+
+
+
+
+
